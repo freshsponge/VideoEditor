@@ -1,0 +1,99 @@
+[
+	{
+        "id": 1,
+		"type": "featured",
+		"title": "",
+		"subtitle": "",
+		"items": [
+            {
+                "id": 0,
+                "tagline": "Add Score and Hole Info",
+                "name": "Score Box",
+                "subheading": "Let your viewers know shot info",
+                "image": "Score Box",
+                "iap": true
+            },
+			{
+				"id": 1,
+				"tagline": "Featured",
+				"name": "Hokey Pokey",
+				"subheading": "You'll never be the same again.",
+				"image": "Heading1",
+				"iap": true
+			},
+			{
+				"id": 2,
+				"tagline": "See it in dark mode",
+				"name": "Smartwhirl",
+				"subheading": "People who love whirling just like you!",
+				"image": "Heading2",
+				"iap": false
+			},
+			{
+				"id": 3,
+				"tagline": "New update",
+				"name": "Professorify",
+				"subheading": "Introducing your portable professor.",
+				"image": "Heading3",
+				"iap": true
+			},
+			{
+				"id": 4,
+				"tagline": "Featured",
+				"name": "SituationMe",
+				"subheading": "Your Situation. Dedicated.",
+				"image": "Heading4",
+				"iap": false
+			},
+			{
+				"id": 5,
+				"tagline": "New update",
+				"name": "Squeally",
+				"subheading": "Motivate your squealing ecosystem.",
+				"image": "Heading5",
+				"iap": true
+			},
+			{
+				"id": 6,
+				"tagline": "See it in dark mode",
+				"name": "youplayer",
+				"subheading": "Harmonize your inner player.",
+				"image": "Heading6",
+				"iap": false
+			},
+			{
+				"id": 7,
+				"tagline": "Must-have app",
+				"name": "Spellnow",
+				"subheading": "Dare to spell the Spellnow way.",
+				"image": "Heading7",
+				"iap": true
+			},
+			{
+				"id": 8,
+				"tagline": "New update",
+				"name": "S.A.C.K.",
+				"subheading": "Sack people using our cloud software.",
+				"image": "Heading8",
+				"iap": false
+			},
+			{
+				"id": 9,
+				"tagline": "See it in dark mode",
+				"name": "Yodely",
+				"subheading": "You like to yodel. Yodely does too.",
+				"image": "Heading9",
+				"iap": true
+			},
+			{
+				"id": 10,
+				"tagline": "New update",
+				"name": "Tipable",
+				"subheading": "Manage your tips like never before.",
+				"image": "Heading10",
+				"iap": false
+			}
+		]
+	}
+]
+	
