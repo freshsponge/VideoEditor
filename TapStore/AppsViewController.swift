@@ -319,7 +319,6 @@ extension AppsViewController: PHPickerViewControllerDelegate {
             displayEmptyImage()
         } else {
             displayNext()
-            print("Test")
         }
     }
 }
