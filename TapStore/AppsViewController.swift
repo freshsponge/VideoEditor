@@ -319,6 +319,7 @@ extension AppsViewController: PHPickerViewControllerDelegate {
             displayEmptyImage()
         } else {
             displayNext()
+            print("Test")
         }
     }
 }
@@ -363,4 +364,5 @@ private extension AppsViewController {
 //    return dataSource.dragItems(for: indexPath)
 //  }
 //}
+
 
