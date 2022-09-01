@@ -17,7 +17,9 @@ class AppsViewController: UIViewController {
     
     let sections = Bundle.main.decode([Section].self, from: "videoGraphics.json")
     var collectionView: UICollectionView!
-
+    
+    var imageView = Bundle.main.decode([Section].self, from: "videoGraphics.json")
+        
     var dataSource: UICollectionViewDiffableDataSource<Section, App>?
 
     private var selection = [String: PHPickerResult]()
@@ -342,124 +344,60 @@ private extension AppsViewController {
     }
 }
 
-extension AppsViewController: UICollectionViewDelegate { }
-
-
-extension AppsViewController: UICollectionViewDataSource {
-
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return sections.count
-    }
-
-//    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-//        return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: supplementaryViewIdentifier, for: indexPath)
-//    }
-}
-
-
-extension AppsViewController: UICollectionViewDragDelegate {
-
-    func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        let itemProvider = NSItemProvider(object: "\(indexPath)" as NSString)
-        let dragItem = UIDragItem(itemProvider: itemProvider)
-        dragItem.localObject = sections[indexPath.section]
-        return [dragItem]
-    }
-
-    func collectionView(_ collectionView: UICollectionView, itemsForAddingTo session: UIDragSession, at indexPath: IndexPath, point: CGPoint) -> [UIDragItem] {
-        let itemProvider = NSItemProvider(object: "\(indexPath)" as NSString)
-        let dragItem = UIDragItem(itemProvider: itemProvider)
-        dragItem.localObject = data[indexPath.section][indexPath.row]
-        return [dragItem]
-    }
-
-
-    func collectionView(_ collectionView: UICollectionView, dragSessionWillBegin session: UIDragSession) {
-        var itemsToInsert = [IndexPath]()
-        (0 ..< data.count).forEach {
-            itemsToInsert.append(IndexPath(item: data[$0].count, section: $0))
-            data[$0].append(.availableToDropAtEnd)
-        }
-        collectionView.insertItems(at: itemsToInsert)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
-        var removeItems = [IndexPath]()
-        for section in 0..<data.count {
-            for item in  0..<data[section].count {
-                switch data[section][item] {
-                    case .availableToDropAtEnd:
-                        removeItems.append(IndexPath(item: item, section: section))
-                    case .simple:
-                        break
-                }
-            }
-        }
-        removeItems.forEach { data[$0.section].remove(at: $0.item) }
-        collectionView.deleteItems(at: removeItems)
-    }
+extension AppsViewController: UIDragInteractionDelegate {
+    // MARK: - UIDragInteractionDelegate
     
-    
-}
+    /*
+         The `dragInteraction(_:itemsForBeginning:)` method is the essential method
+         to implement for allowing dragging from a view.
+    */
+    func dragInteraction(_ interaction: UIDragInteraction, itemsForBeginning session: UIDragSession) -> [UIDragItem] {
+        guard let image = self.imageView
+        else { return [] }
 
+        let provider = NSItemProvider(object: image)
+        let item = UIDragItem(itemProvider: provider)
+        item.localObject = image
+        
+        /*
+             Returning a non-empty array, as shown here, enables dragging. You
+             can disable dragging by instead returning an empty array.
+        */
+        return [item]
+    }
 
-
-
-extension SecondController: UICollectionViewDropDelegate {
-    func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
-        let destinationIndexPath: IndexPath
-        if let indexPath = coordinator.destinationIndexPath {
-            destinationIndexPath = indexPath
+    /*
+         Code below here adds visual enhancements but is not required for minimal
+         dragging support. If you do not implement this method, the system uses
+         the default lift animation.
+    */
+    func dragInteraction(_ interaction: UIDragInteraction, previewForLifting item: UIDragItem, session: UIDragSession) -> UITargetedDragPreview? {
+        guard let image = item.localObject as? UIImage else { return nil }
+        
+        // Scale the preview image view frame to the image's size.
+        let frame: CGRect
+        if image.size.width > image.size.height {
+            let multiplier = imageView.frame.width / image.size.width
+            frame = CGRect(x: 0, y: 0, width: imageView.frame.width, height: image.size.height * multiplier)
         } else {
-            // useless, just in case
-            let section = collectionView.numberOfSections - 1
-            let row = collectionView.numberOfItems(inSection: section)
-            destinationIndexPath = IndexPath(row: row, section: section)
+            let multiplier = imageView.frame.height / image.size.height
+            frame = CGRect(x: 0, y: 0, width: image.size.width * multiplier, height: imageView.frame.height)
         }
 
-        switch coordinator.proposal.operation {
-            case .move:
-                reorderItems(coordinator: coordinator, destinationIndexPath:destinationIndexPath, collectionView: collectionView)
-            default:
-                break
-        }
+        // Create a new view to display the image as a drag preview.
+        let previewImageView = UIImageView(image: image)
+        previewImageView.contentMode = .scaleAspectFit
+        previewImageView.frame = frame
+
+        /*
+             Provide a custom targeted drag preview that lifts from the center
+             of imageView. The center is calculated because it needs to be in
+             the coordinate system of imageView. Using imageView.center returns
+             a point that is in the coordinate system of imageView's superview,
+             which is not what is needed here.
+         */
+        let center = CGPoint(x: imageView.bounds.midX, y: imageView.bounds.midY)
+        let target = UIDragPreviewTarget(container: imageView, center: center)
+        return UITargetedDragPreview(view: previewImageView, parameters: UIDragPreviewParameters(), target: target)
     }
-
-    func collectionView(_ collectionView: UICollectionView, canHandle session: UIDropSession) -> Bool {
-        return true
-    }
-    
-    
-    
-    
-    func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
-        // made the above logic useless
-        if collectionView.hasActiveDrag, destinationIndexPath != nil {
-            return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
-        }
-        else {
-            return UICollectionViewDropProposal(operation: .forbidden)
-        }
-    }
-
-    
-    
-    private
-    func reorderItems(coordinator: UICollectionViewDropCoordinator, destinationIndexPath: IndexPath, collectionView: UICollectionView) {
-        let items = coordinator.items
-        if items.count == 1, let item = items.first,
-            let sourceIndexPath = item.sourceIndexPath,
-            let localObject = item.dragItem.localObject as? CellModel {
-
-            collectionView.performBatchUpdates ({
-                data[sourceIndexPath.section].remove(at: sourceIndexPath.item)
-                data[destinationIndexPath.section].insert(localObject, at: destinationIndexPath.item)
-                collectionView.deleteItems(at: [sourceIndexPath])
-                collectionView.insertItems(at: [destinationIndexPath])
-            })
-        }
-    }
-
-   
 }
-
